@@ -26,21 +26,31 @@ shinyServer(function(input, output) {
   }
   output$summary <- DT::renderDataTable({
     if(input$title != "Standings"){
+      data <- reactive({
+        getF1(title = input$title, year = input$year)
+      })
         if(input$title == "results"){
-          unnest_wider(data$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_")
+          data2 <- as.data.frame(unnest_wider(data()$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_"))
+          data2[input$vars]
         }else if(input$title == "qualifying"){
-          unnest_wider(data$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_")
+          data2 <- as.data.frame(unnest_wider(data()$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_"))
+          data2[input$vars]
         } else{
-          data$Drivers
+          data2 <- as.data.frame(data()$Drivers)
+          data2[input$vars]
         }
     } else{
         if(input$constDriver == "Constructor"){
-            data <- getF1(title = "constructorStandings", year = input$year)
-            data$StandingsLists$ConstructorStandings[[1]]$Constructor
-            # data2[input$vars]
+          data <- reactive({
+            getF1(title = "constructorStandings", year = input$year)
+          })
+            data2 <- as.data.frame(data()$StandingsLists$ConstructorStandings[[1]]$Constructor)
+            data2[input$vars]
         } else if(input$constDriver == "Driver"){
-            data <- getF1(title = "driverStandings", year = input$year)
-            data2 <- as.data.frame(list(points = data$StandingsLists$DriverStandings[[1]]$points, wins = data$StandingsLists$DriverStandings[[1]]$wins, data$StandingsLists$DriverStandings[[1]]$Driver))
+          data <- reactive({
+            getF1(title = "driverStandings", year = input$year)
+          })
+            data2 <- as.data.frame(list(points = data()$StandingsLists$DriverStandings[[1]]$points, wins = data()$StandingsLists$DriverStandings[[1]]$wins, data()$StandingsLists$DriverStandings[[1]]$Driver))
             data2[input$vars]
           }
     }
