@@ -1,37 +1,50 @@
 library(shiny)
-library(caret)
 library(tidyverse)
 library(DT)
-data("GermanCredit")
+library(jsonlite)
+library(tidyverse)
+library(httr)
+library(dplyr)
 
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-  
+  getF1 <- function(title = "results", year = "current"){
+    URL <- paste("https://ergast.com/api/f1/", 
+                   year,
+                   "/",
+                   title,
+                   ".json",
+                   sep = "")
+    outData <- GET(URL)$content |>
+      rawToChar() |>
+      fromJSON() |>
+      as_tibble()
+    tableOfInterest <- tail(outData$MRData, n=1)
+    listOfInterest <- tableOfInterest[[1]]
+    return(finalTibble = as_tibble(listOfInterest))
+  }
   output$summary <- DT::renderDataTable({
-    var <- input$var
-    round <- input$round
-# if "Standings" selected on UI, give options "Driver" = driverStandings and "Constructor" = constructorStandings
-    tab <- GermanCredit %>% 
-      select("Class", "InstallmentRatePercentage", var) %>%
-      group_by(Class, InstallmentRatePercentage) %>%
-      summarize(mean = round(mean(get(var)), round))
-    tab
-  })
-  
-  output$barPlot <- renderPlot({
-    
-    g <- ggplot(GermanCredit, aes(x = Class))  
-    
-    if(input$plot == "bar"){
-      g + geom_bar()
-    } else if(input$plot == "sideUmemploy"){ 
-      g + geom_bar(aes(fill = as.factor(EmploymentDuration.Unemployed)), position = "dodge") + 
-        scale_fill_discrete(name = "Unemployment status", labels = c("Employed", "Unemployed"))
-    } else if(input$plot == "sideForeign"){
-      g + geom_bar(aes(fill = as.factor(ForeignWorker)), position = "dodge") + 
-        scale_fill_discrete(name = "Status", labels = c("German", "Foreign"))
+    if(input$title != "Standings"){
+        if(input$title == "results"){
+          unnest_wider(data$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_")
+        }else if(input$title == "qualifying"){
+          unnest_wider(data$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_")
+        } else{
+          data$Drivers
+        }
+    } else{
+        if(input$constDriver == "Constructor"){
+            data <- getF1(title = "constructorStandings", year = input$year)
+            data$StandingsLists$ConstructorStandings[[1]]$Constructor
+            # data2[input$vars]
+        } else if(input$constDriver == "Driver"){
+            data <- getF1(title = "driverStandings", year = input$year)
+            data2 <- as.data.frame(list(points = data$StandingsLists$DriverStandings[[1]]$points, wins = data$StandingsLists$DriverStandings[[1]]$wins, data$StandingsLists$DriverStandings[[1]]$Driver))
+            data2[input$vars]
+          }
     }
+    
+    
   })
-  
 })
