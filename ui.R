@@ -23,13 +23,22 @@ shinyUI(fluidPage(
       br(),
       radioButtons("title", "Category", choices = list("Race Results" = "results", "Drivers" = "drivers", "Qualifying Results" = "qualifying", "Standings")),
       conditionalPanel(condition = "input.title == 'Standings'",
-                       selectInput("constDriver", label = "Constructor or Driver Standings", choices = c("Constructor", "Driver")))),
-    # br(),
-    # conditionalPanel(condition = "input.title == 'Standings' & input.constDriver == 'Driver'",
-    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Points" = "points", "Wins" = "wins", "Driver ID" = "driverId", "Permanent Number" = "permanentNumber", "Code" = "code", "URL"= "url", "First Name" = "givenName", "Last Name" = "familyName", "Birthday" = "dateOfBirth", "Nationality" = "nationality"), selected = list("Points" = "points", "Wins" = "wins", "Driver ID" = "driverId", "Permanent Number" = "permanentNumber", "Code" = "code", "URL"= "url", "First Name" = "givenName", "Last Name" = "familyName", "Birthday" = "dateOfBirth", "Nationality" = "nationality"))),
+                       selectInput("constDriver", label = "Constructor or Driver Standings", choices = c("Constructor", "Driver"))),
+    br(),
+    # conditionalPanel(condition = "input.title == 'Standings' && input.constDriver == 'Driver'",
+    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Points" = "data$StandingsLists$DriverStandings[[1]]$points", "Wins" = "data$StandingsLists$DriverStandings[[1]]$wins"), selected = list("Points" = "points", "Wins" = "wins"))),
+
+    conditionalPanel(condition = "input.title == 'Standings' && input.constDriver == 'Constructor'",
+                     checkboxGroupInput("vars", label = "Variables", choices = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality"), selected = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality")))),
+    
+    # conditionalPanel(condition = "input.title == 'results'",
+    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Number" = "number", "Position" = "position", "Grid" = "grid", "Laps" = "laps", "Status" = "status"), selected = list("Number" = "number", "Position" = "position", "Grid" = "grid", "Laps" = "laps", "Status" = "status"))),
     # 
-    # conditionalPanel(condition = "input.title == 'Standings' & input.constDriver == 'Constructor'",
-    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality"), selected = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality")))),
+    # conditionalPanel(condition = "input.title == 'drivers'",
+    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Driver ID" = "driverId", "Permanent Number" = "permanentNumber", "Code" = "code", "URL"= "url", "First Name" = "givenName", "Last Name" = "familyName", "Birthday" = "dateOfBirth", "Nationality" = "nationality"), selected = list("Points" = "points", "Wins" = "wins", "Driver ID" = "driverId", "Permanent Number" = "permanentNumber", "Code" = "code", "URL"= "url", "First Name" = "givenName", "Last Name" = "familyName", "Birthday" = "dateOfBirth", "Nationality" = "nationality"))),
+    # 
+    # conditionalPanel(condition = "input.title == 'qualifying'",
+    #                  checkboxGroupInput("vars", label = "Variables", choices = list("Number" = "number", "Position" = "position", "Q1" = "Q1", "Q2" = "Q2", "Q3" = "Q3"), selected = list("Number" = "number", "Position" = "position", "Q1" = "Q1", "Q2" = "Q2", "Q3" = "Q3")))),
   
     
     

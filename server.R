@@ -25,34 +25,28 @@ shinyServer(function(input, output) {
     return(finalTibble = as_tibble(listOfInterest))
   }
   output$summary <- DT::renderDataTable({
+
     if(input$title != "Standings"){
-      data <- reactive({
-        getF1(title = input$title, year = input$year)
-      })
+      data <- getF1(title = input$title, year = input$year)
         if(input$title == "results"){
-          data2 <- as.data.frame(unnest_wider(data()$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_"))
-          data2[input$vars]
+         unnest_wider(data$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_")
         }else if(input$title == "qualifying"){
-          data2 <- as.data.frame(unnest_wider(data()$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_"))
-          data2[input$vars]
+          unnest_wider(data$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_")
         } else{
-          data2 <- as.data.frame(data()$Drivers)
-          data2[input$vars]
+          data$Drivers
         }
     } else{
         if(input$constDriver == "Constructor"){
-          data <- reactive({
-            getF1(title = "constructorStandings", year = input$year)
-          })
-            data2 <- as.data.frame(data()$StandingsLists$ConstructorStandings[[1]]$Constructor)
-            data2[input$vars]
+          data <- getF1(title = "constructorStandings", year = input$year)
+          data2 <- as.data.frame(data$StandingsLists$ConstructorStandings[[1]]$Constructor)
+            data3 <- data2 |> select(input$vars)
+            data3
         } else if(input$constDriver == "Driver"){
-          data <- reactive({
-            getF1(title = "driverStandings", year = input$year)
-          })
-            data2 <- as.data.frame(list(points = data()$StandingsLists$DriverStandings[[1]]$points, wins = data()$StandingsLists$DriverStandings[[1]]$wins, data()$StandingsLists$DriverStandings[[1]]$Driver))
-            data2[input$vars]
-          }
+          data <- getF1(title = "driverStandings", year = input$year)
+          data2 <- as.data.frame(list(points = data$StandingsLists$DriverStandings[[1]]$points, wins = data$StandingsLists$DriverStandings[[1]]$wins, data$StandingsLists$DriverStandings[[1]]$Driver))
+          # data3 <- data2 |> select(c(input$vars))
+          # data3
+        }
     }
     
     
