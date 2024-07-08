@@ -4,14 +4,18 @@ library(jsonlite)
 library(tidyverse)
 library(httr)
 library(dplyr)
+library(caret)
+
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
   
   # Application title
   titlePanel("F1 Racing Data"),
-  
+  tabsetPanel(
+    tabPanel("About",""),
   # Sidebar with a slider input for number of bins
+  tabPanel("Data Download",
   sidebarLayout(
     sidebarPanel(
       h3("This data set comes from the ", a(href = "https://ergast.com/mrd/", "Ergast Developer API")),
@@ -29,7 +33,7 @@ shinyUI(fluidPage(
     #                  checkboxGroupInput("vars", label = "Variables", choices = list("Points" = "data$StandingsLists$DriverStandings[[1]]$points", "Wins" = "data$StandingsLists$DriverStandings[[1]]$wins"), selected = list("Points" = "points", "Wins" = "wins"))),
 
     conditionalPanel(condition = "input.title == 'Standings' && input.constDriver == 'Constructor'",
-                     checkboxGroupInput("vars", label = "Variables", choices = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality"), selected = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality")))),
+                     checkboxGroupInput("vars", label = "Variables", choices = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality"), selected = list("Constructor ID" = "constructorId", "URL" = "url", "Name" = "name", "Nationality" = "nationality"))),
     
     # conditionalPanel(condition = "input.title == 'results'",
     #                  checkboxGroupInput("vars", label = "Variables", choices = list("Number" = "number", "Position" = "position", "Grid" = "grid", "Laps" = "laps", "Status" = "status"), selected = list("Number" = "number", "Position" = "position", "Grid" = "grid", "Laps" = "laps", "Status" = "status"))),
@@ -40,10 +44,11 @@ shinyUI(fluidPage(
     # conditionalPanel(condition = "input.title == 'qualifying'",
     #                  checkboxGroupInput("vars", label = "Variables", choices = list("Number" = "number", "Position" = "position", "Q1" = "Q1", "Q2" = "Q2", "Q3" = "Q3"), selected = list("Number" = "number", "Position" = "position", "Q1" = "Q1", "Q2" = "Q2", "Q3" = "Q3")))),
   
-    
+    downloadButton("download", "Download Dataset")),
     
     # Show a plot of the generated distribution
     mainPanel(
       dataTableOutput("summary")
-    )
+    ))),
+  tabPanel("Exploration", "")
 )))
