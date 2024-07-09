@@ -9,50 +9,82 @@ library(dplyr)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-  getF1 <- function(title = "results", year = "current"){
-    URL <- paste("https://ergast.com/api/f1/", 
-                   year,
-                   "/",
-                   title,
-                   ".json?limit=1000",
-                   sep = "")
+    URL <- "https://fruityvice.com/api/fruit/all"
     outData <- GET(URL)$content |>
       rawToChar() |>
       fromJSON() |>
       as_tibble()
-    tableOfInterest <- tail(outData$MRData, n=1)
-    listOfInterest <- tableOfInterest[[1]]
-    return(finalTibble = as_tibble(listOfInterest))
-  }
-  
+    color_mappings <- tribble(
+      ~fruit, ~color,
+      "Strawberry", "red",
+      "Tomato", "red",
+      "Lingonberry", "red",
+      "Lychee", "red",
+      "Raspberry", "red",
+      "Apple", "red",
+      "Pomegranate", "red",
+      "Cranberry", "red",
+      "Cherry", "red",
+      "Durian", "green",
+      "Pear", "green",
+      "Kiwi", "green",
+      "GreenApple", "green",
+      "Melon", "green",
+      "Lime", "green",
+      "Feijoa", "green",
+      "Avocado", "green",
+      "Annona", "green",
+      "Banana", "yellow",
+      "Pineapple", "yellow",
+      "Gooseberry", "yellow",
+      "Lemon", "yellow",
+      "Mango", "yellow",
+      "Kiwifruit", "yellow",
+      "Jackfruit", "yellow",
+      "Hazelnut", "yellow",
+      "Blueberry", "blue",
+      "Ceylon Gooseberry", "blue",
+      "Fig", "pink",
+      "Watermelon", "pink",
+      "Guava", "pink",
+      "Pitahaya", "pink",
+      "Dragonfruit", "pink",
+      "Pomelo", "pink",
+      "Persimmon", "orange",
+      "Orange", "orange",
+      "Apricot", "orange",
+      "Tangerine", "orange",
+      "Peach", "orange",
+      "Horned Melon", "orange",
+      "Pumpkin", "orange",
+      "Japanese Persimmon", "orange",
+      "Papaya", "orange",
+      "Blackberry", "purple",
+      "Passionfruit", "purple",
+      "Plum", "purple",
+      "Grape", "purple",
+      "Morus", "purple",
+      "Mangosteen", "purple"
+    )
+    
+
   data2 <- reactive({
-    if(input$title != "Standings"){
-      data <- getF1(title = input$title, year = input$year)
-      if(input$title == "results"){
-        data2 <-unnest_wider(data$Races$Results[[1]], col = c(Driver, Constructor, FastestLap, Time), names_sep = "_")
-      }else if(input$title == "qualifying"){
-        data2 <- unnest_wider(data$Races$QualifyingResults[[1]], col = c(Driver, Constructor), names_sep = "_")
-      } else{
-        data2 <- data$Drivers
-      }
-    } else{
-      if(input$constDriver == "Constructor"){
-        data <- getF1(title = "constructorStandings", year = input$year)
-        data2 <- as.data.frame(data$StandingsLists$ConstructorStandings[[1]]$Constructor)
-        data2 <- data2 |> select(all_of(input$vars))
-      } else if(input$constDriver == "Driver"){
-        data <- getF1(title = "driverStandings", year = input$year)
-        data2 <- as.data.frame(list(points = data$StandingsLists$DriverStandings[[1]]$points, wins = data$StandingsLists$DriverStandings[[1]]$wins, data$StandingsLists$DriverStandings[[1]]$Driver))
-      }
+    outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
+      unnest_wider(col=nutritions, names_sep="_")
+    if(input$col == "all fruits"){
+      outData2 <- select(outData, "name", "id", input$vars)
+    }else{
+    outData2 <- outData |> 
+      filter(input$col == outData$color) |>
+      select("name", "id", input$vars)
     }
-    return(data2)
   })
   output$summary <- DT::renderDataTable({
     data2()
 })
   output$download <- downloadHandler(
     filename = function() {
-      "F1_Racing.csv"
+      "Art.csv"
     },
     content = function(file){
       write.csv(data2(), file, row.names = FALSE)
