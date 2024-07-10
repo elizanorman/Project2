@@ -9,7 +9,7 @@ library(ggplot2)
 library(ggExtra)
 
 
-# Define server logic required to draw a histogram
+# Define server 
 shinyServer(function(input, output) {
     URL <- "https://fruityvice.com/api/fruit/all"
     outData <- GET(URL)$content |>
