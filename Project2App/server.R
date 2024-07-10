@@ -5,6 +5,8 @@ library(jsonlite)
 library(tidyverse)
 library(httr)
 library(dplyr)
+library(ggplot2)
+library(ggExtra)
 
 
 # Define server logic required to draw a histogram
@@ -72,14 +74,14 @@ shinyServer(function(input, output) {
     outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
       unnest_wider(col=nutritions, names_sep="_")
     if(input$col == "all fruits"){
-      if(input$radio == "Nutrition Breakdown"){
+      if(input$radio == "Nutrition Facts"){
         outData2 <- select(outData, "name", "id", input$varsNut)
       }else{
         outData2 <- select(outData, "name", "id", input$varsBio)
       }
         
     }else{
-      if(input$radio == "Nutrition Breakdown"){
+      if(input$radio == "Nutrition Facts"){
         outData2 <- outData |> 
           filter(input$col == outData$color) |>
           select("name", "id", input$varsNut)
@@ -142,6 +144,17 @@ shinyServer(function(input, output) {
       g + geom_bar(aes(fill = as.factor(genus)))
     }
   })
+  output$line <- renderPlot({
+    outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
+      unnest_wider(col=nutritions, names_sep="_")
+    if(input$numType == "Categorical"){
+      p <- ggplot(outData, aes(x = nutritions_sugar, y = nutritions_calories, color = color)) +
+        geom_line() +
+        labs(x = "Sugar", y = "Calories", color = "Fruit Color") +
+        scale_color_manual(values = c(blue = "blue", green = "green", orange = "orange", pink = "pink", purple = "purple", red = "red", yellow = "yellow"))
+      p
+    }
+  })
   
   output$text <- renderText({
     outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
@@ -151,5 +164,27 @@ shinyServer(function(input, output) {
     }
   })
   
+  output$scatter <- renderPlot({
+    outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
+      unnest_wider(col=nutritions, names_sep="_")
+    if(input$numType == "Numeric"){
+      f <- ggplot(outData, aes(x = as.numeric(.data[[input$scatterVar1]]), y = as.numeric(.data[[input$scatterVar2]]), colour = as.factor(.data$color))) +
+        geom_point()+
+        labs(x = input$scatterVar1, y = input$scatterVar2, colour = "Color")
+      ggMarginal(f, groupColour = TRUE, groupFill = TRUE)
+    }
+  })
 
+  output$box <- renderPlot({
+    outData <- outData |> left_join(color_mappings, by = c("name" = "fruit")) |>
+      unnest_wider(col=nutritions, names_sep="_")
+    if(input$numType == "Numeric"){
+      b <- ggplot(outData, aes(x = color, y = nutritions_calories, fill = as.factor(color))) +
+        geom_boxplot() +
+        scale_fill_manual(values = c(blue = "blue", green = "green", orange = "orange", pink = "pink", purple = "purple", red = "red", yellow = "yellow")) +
+        labs(x = "Color", y = "Calories", fill = "Color")
+      b
+    }
+  })
+  
 })
