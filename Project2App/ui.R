@@ -55,7 +55,7 @@ shinyUI(fluidPage(
     mainPanel(
       dataTableOutput("summary")
     ))),
-  tabPanel("Exploration",
+  tabPanel("Data Exploration",
            sidebarLayout(
              sidebarPanel(
                h4("Are you interested in Numeric or Categorical Summaries?"),
